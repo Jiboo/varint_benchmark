@@ -1,8 +1,9 @@
 // https://en.wikipedia.org/wiki/LEB128
 
 const std = @import("std");
+const common = @import("common.zig");
 
-pub fn uleb128(comptime T: type) type {
+pub fn ULEB128(comptime T: type) type {
     if (@typeInfo(T) != .Int) {
         @compileError("Using uleb128 on non-int type: " ++ @typeName(T));
     }
@@ -52,22 +53,12 @@ pub fn uleb128(comptime T: type) type {
     };
 }
 
-fn test_encdec(comptime T: type, expected_val: T, expected_enc: []const u8) !void {
-    var enc: [17]u8 = undefined;
-    try std.testing.expectEqual(expected_enc.len, uleb128(T).encode(&enc, expected_val));
-    try std.testing.expectEqualSlices(u8, expected_enc, enc[0..expected_enc.len]);
-
-    const decode_res = uleb128(T).decode(&enc);
-    try std.testing.expectEqual(expected_enc.len, decode_res.len);
-    try std.testing.expectEqual(expected_val, decode_res.val);
-}
-
 test "conformant" {
-    try test_encdec(u64, 0, "\x00");
-    try test_encdec(u64, 0x01, "\x01");
-    try test_encdec(u64, 0x7f, "\x7f");
-    try test_encdec(u64, 0x80, "\x80\x01");
-    try test_encdec(u32, 0x80, "\x80\x01");
-    try test_encdec(u16, 0x80, "\x80\x01");
-    try test_encdec(u64, 0x8000000000000000, "\x80\x80\x80\x80\x80\x80\x80\x80\x80\x01");
+    try common.testRoundtrip(u64, ULEB128(u64), 0, "\x00");
+    try common.testRoundtrip(u64, ULEB128(u64), 0x01, "\x01");
+    try common.testRoundtrip(u64, ULEB128(u64), 0x7f, "\x7f");
+    try common.testRoundtrip(u64, ULEB128(u64), 0x80, "\x80\x01");
+    try common.testRoundtrip(u32, ULEB128(u64), 0x80, "\x80\x01");
+    try common.testRoundtrip(u16, ULEB128(u64), 0x80, "\x80\x01");
+    try common.testRoundtrip(u64, ULEB128(u64), 0x8000000000000000, "\x80\x80\x80\x80\x80\x80\x80\x80\x80\x01");
 }

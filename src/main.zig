@@ -18,12 +18,12 @@ const Format = enum {
 
 fn Impl(TargetType: type, comptime format: Format) type {
     switch (format) {
-        .fixed => return @import("fixed.zig").fixed(TargetType),
-        .prefix => return @import("prefix.zig").prefix(u8, TargetType),
-        .sqlite4 => return @import("sqlite4.zig").sqlite4(TargetType),
-        .uleb128 => return @import("uleb128.zig").uleb128(TargetType),
-        .vint64 => return @import("vint64.zig").vint64(TargetType),
-        .vu128 => return @import("vu128.zig").vu128(TargetType),
+        .fixed => return @import("fixed.zig").Fixed(TargetType),
+        .prefix => return @import("prefix.zig").Prefix(u8, TargetType),
+        .sqlite4 => return @import("sqlite4.zig").SQLite4(TargetType),
+        .uleb128 => return @import("uleb128.zig").ULEB128(TargetType),
+        .vint64 => return @import("vint64.zig").VInt64(TargetType),
+        .vu128 => return @import("vu128.zig").VU128(TargetType),
     }
 }
 

@@ -1,23 +1,23 @@
 const std = @import("std");
 
-pub fn relevant_bytes(T: type, val: T) usize {
+pub fn relevantBytes(T: type, val: T) usize {
     const insignificant_bytes = @clz(val | 1) / 8;
     return @sizeOf(T) - insignificant_bytes;
 }
 
-pub fn write_ptr(T: type, buff: [*]u8, raw: T) void {
+pub fn writePtr(T: type, buff: [*]u8, raw: T) void {
     const dst: *align(1) T = @ptrCast(buff);
     dst.* = raw;
 }
 
-pub fn read_ptr(T: type, buff: [*]const u8) T {
+pub fn readPtr(T: type, buff: [*]const u8) T {
     const src: *align(1) const T = @ptrCast(buff);
     return src.*;
 }
 
-pub fn read_ptr_masked(T: type, expected_bytes: u8, buff: [*]const u8) T {
+pub fn readPtrMasked(T: type, expected_bytes: u8, buff: [*]const u8) T {
     const MAX_BYTE_COUNT = @sizeOf(T);
-    const raw = read_ptr(T, buff);
+    const raw = readPtr(T, buff);
 
     // Old generic version, too much cycles
     //if (expected_bytes == MAX_BYTE_COUNT) {
@@ -193,4 +193,14 @@ pub fn read(T: type, byte_size: usize, buff: [*]const u8) T {
         unreachable;
     }
     return result;
+}
+
+pub fn testRoundtrip(T: type, Format: type, expected_val: T, expected_enc: []const u8) !void {
+    var enc = std.mem.zeroes([20]u8);
+    try std.testing.expectEqual(expected_enc.len, Format.encode(&enc, expected_val));
+    try std.testing.expectEqualSlices(u8, expected_enc, enc[0..expected_enc.len]);
+
+    const decode_res = Format.decode(&enc);
+    try std.testing.expectEqual(expected_enc.len, decode_res.len);
+    try std.testing.expectEqual(expected_val, decode_res.val);
 }

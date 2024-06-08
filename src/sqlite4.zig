@@ -1,8 +1,9 @@
 // Based on https://sqlite.org/src4/doc/trunk/www/varint.wiki
 
 const std = @import("std");
+const common = @import("common.zig");
 
-pub fn sqlite4(comptime T: type) type {
+pub fn SQLite4(comptime T: type) type {
     if (@typeInfo(T) != .Int) {
         @compileError("Using sqlite4 on non-int type: " ++ @typeName(T));
     }
@@ -146,36 +147,26 @@ pub fn sqlite4(comptime T: type) type {
     };
 }
 
-fn test_encdec(comptime T: type, expected_val: T, expected_enc: []const u8) !void {
-    var enc: [17]u8 = undefined;
-    try std.testing.expectEqual(expected_enc.len, sqlite4(T).encode(&enc, expected_val));
-    try std.testing.expectEqualSlices(u8, expected_enc, enc[0..expected_enc.len]);
-
-    const decode_res = sqlite4(T).decode(&enc);
-    try std.testing.expectEqual(expected_enc.len, decode_res.len);
-    try std.testing.expectEqual(expected_val, decode_res.val);
-}
-
 test "conformant" {
     // From https://github.com/mohae/sqlite4-varint-bench/blob/master/bench_test.go
-    try test_encdec(u64, 0, "\x00");
-    try test_encdec(u64, 240, "\xF0");
-    try test_encdec(u64, 241, "\xF1\x01");
-    try test_encdec(u64, 2287, "\xF8\xFF");
-    try test_encdec(u64, 2288, "\xF9\x00\x00");
-    try test_encdec(u64, 67823, "\xF9\xFF\xFF");
-    try test_encdec(u64, 67824, "\xFA\x01\x08\xF0");
-    try test_encdec(u64, (1 << 24) - 1, "\xFA\xFF\xFF\xFF");
-    try test_encdec(u64, (1 << 24) - 0, "\xFB\x01\x00\x00\x00");
-    try test_encdec(u64, (1 << 32) - 1, "\xFB\xFF\xFF\xFF\xFF");
-    try test_encdec(u64, (1 << 32) - 0, "\xFC\x01\x00\x00\x00\x00");
-    try test_encdec(u64, (1 << 40) - 1, "\xFC\xFF\xFF\xFF\xFF\xFF");
-    try test_encdec(u64, (1 << 40) - 0, "\xFD\x01\x00\x00\x00\x00\x00");
-    try test_encdec(u64, (1 << 48) - 1, "\xFD\xFF\xFF\xFF\xFF\xFF\xFF");
-    try test_encdec(u64, (1 << 48) - 0, "\xFE\x01\x00\x00\x00\x00\x00\x00");
-    try test_encdec(u64, (1 << 56) - 1, "\xFE\xFF\xFF\xFF\xFF\xFF\xFF\xFF");
-    try test_encdec(u64, (1 << 56) - 0, "\xFF\x01\x00\x00\x00\x00\x00\x00\x00");
-    try test_encdec(u64, (1 << 64) - 1, "\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF");
+    try common.testRoundtrip(u64, SQLite4(u64), 0, "\x00");
+    try common.testRoundtrip(u64, SQLite4(u64), 240, "\xF0");
+    try common.testRoundtrip(u64, SQLite4(u64), 241, "\xF1\x01");
+    try common.testRoundtrip(u64, SQLite4(u64), 2287, "\xF8\xFF");
+    try common.testRoundtrip(u64, SQLite4(u64), 2288, "\xF9\x00\x00");
+    try common.testRoundtrip(u64, SQLite4(u64), 67823, "\xF9\xFF\xFF");
+    try common.testRoundtrip(u64, SQLite4(u64), 67824, "\xFA\x01\x08\xF0");
+    try common.testRoundtrip(u64, SQLite4(u64), (1 << 24) - 1, "\xFA\xFF\xFF\xFF");
+    try common.testRoundtrip(u64, SQLite4(u64), (1 << 24) - 0, "\xFB\x01\x00\x00\x00");
+    try common.testRoundtrip(u64, SQLite4(u64), (1 << 32) - 1, "\xFB\xFF\xFF\xFF\xFF");
+    try common.testRoundtrip(u64, SQLite4(u64), (1 << 32) - 0, "\xFC\x01\x00\x00\x00\x00");
+    try common.testRoundtrip(u64, SQLite4(u64), (1 << 40) - 1, "\xFC\xFF\xFF\xFF\xFF\xFF");
+    try common.testRoundtrip(u64, SQLite4(u64), (1 << 40) - 0, "\xFD\x01\x00\x00\x00\x00\x00");
+    try common.testRoundtrip(u64, SQLite4(u64), (1 << 48) - 1, "\xFD\xFF\xFF\xFF\xFF\xFF\xFF");
+    try common.testRoundtrip(u64, SQLite4(u64), (1 << 48) - 0, "\xFE\x01\x00\x00\x00\x00\x00\x00");
+    try common.testRoundtrip(u64, SQLite4(u64), (1 << 56) - 1, "\xFE\xFF\xFF\xFF\xFF\xFF\xFF\xFF");
+    try common.testRoundtrip(u64, SQLite4(u64), (1 << 56) - 0, "\xFF\x01\x00\x00\x00\x00\x00\x00\x00");
+    try common.testRoundtrip(u64, SQLite4(u64), (1 << 64) - 1, "\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF");
 }
 
 test "u32" {
