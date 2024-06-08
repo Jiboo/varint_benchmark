@@ -1,0 +1,14 @@
+.{
+    .name = "varint_benchmark",
+    .version = "1.0.0",
+
+    .dependencies = .{},
+
+    .paths = .{
+        "bench.sh",
+        "build.zig",
+        "build.zig.zon",
+        "readme.md",
+        "src",
+    },
+}

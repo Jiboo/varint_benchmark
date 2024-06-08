@@ -1,0 +1,8 @@
+| Format                                                                          |     Size(B) |  Encode(ns) |  Decode(ns) |
+| ------------------------------------------------------------------------------- | ----------- | ----------- | ----------- |
+| Fixed: fixed size read/write                                                    |      8.0000 |      0.2358 |      0.9329 |
+| Prefix: u8 prefix announcing size                                               |      5.4462 |      0.4724 |      0.9387 |
+| [SQLite4](https://sqlite.org/src4/doc/trunk/www/varint.wiki)                    |      5.2769 |      0.6045 |      1.0997 |
+| [ULEB128](https://en.wikipedia.org/wiki/LEB128)                                 |      5.0154 |      2.2890 |      4.8815 |
+| [vint64](https://github.com/iqlusioninc/veriform/tree/develop/rust/vint64/)     |      5.0000 |      0.2662 |      1.1466 |
+| [vu128](https://john-millikin.com/vu128-efficient-variable-length-integers)     |      5.3231 |      0.4441 |      0.9408 |
